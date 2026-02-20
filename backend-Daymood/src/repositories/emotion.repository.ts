@@ -14,5 +14,3 @@ export const findByUser = (idUser: string) => {
     return prisma.emotions.findMany({
         where: { id: idUser } })
 }
-
-//Habrá delete????
