@@ -9,8 +9,9 @@ datasource db {
 
 model categories {
   id       Int        @id @default(autoincrement())
-  name     String?    @db.VarChar(20)
+  name     String?    @db.VarChar(50)
   emotions emotions[]
+  forums   forums[]
   habits   habits[]
   posts    posts[]
 }
@@ -47,11 +48,14 @@ model favorites {
 }
 
 model forums {
-  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  min_age Int?
-  max_age Int?
-  posts   posts[]
-  users   users[]
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  min_age     Int?
+  max_age     Int?
+  id_category Int?
+  categories  categories?  @relation(fields: [id_category], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  posts       posts[]
+  user_forum  user_forum[]
+  users       users[]
 }
 
 model habits {
@@ -99,8 +103,8 @@ model records {
 model users {
   id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   firebase_uid String        @unique @db.VarChar(200)
-  username     String?       @unique @db.VarChar(20)
-  email        String?       @unique @db.VarChar(40)
+  username     String?       @unique @db.VarChar(50)
+  email        String?       @unique @db.VarChar(100)
   birth_day    DateTime      @db.Date
   start_date   DateTime?     @default(now()) @db.Timestamp(6)
   id_forum     String?       @db.Uuid
@@ -109,6 +113,7 @@ model users {
   favorites    favorites[]
   posts        posts[]
   records      records[]
+  user_forum   user_forum?
   forums       forums?       @relation(fields: [id_forum], references: [id], onDelete: NoAction, onUpdate: NoAction)
   weekly_form  weekly_form[]
 }
@@ -119,4 +124,11 @@ model weekly_form {
   date    DateTime @db.Date
   answers Json?
   users   users    @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_forum {
+  id_user  String  @id @db.Uuid
+  id_forum String? @db.Uuid
+  forums   forums? @relation(fields: [id_forum], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users    users   @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
